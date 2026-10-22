@@ -1,0 +1,32 @@
+
+trigger:
+  - main
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+  - stage: Validate
+    displayName: Validate Terraform
+    jobs:
+      - job: TerraformChecks
+        displayName: Format, Validate and Scan
+        steps:
+          - task: TerraformInstaller@1
+            displayName: Install Terraform
+            inputs:
+              terraformVersion: '1.15.8'
+
+          - script: terraform fmt -check -recursive
+            displayName: Check Terraform formatting
+
+          - script: |
+              terraform init -backend=false
+              terraform validate
+            displayName: Validate Terraform configuration
+
+          - script: |
+              python -m pip install --upgrade pip
+              pip install checkov
+              checkov -d . --framework terraform --quiet
+            displayName: Scan Terraform with Checkov
