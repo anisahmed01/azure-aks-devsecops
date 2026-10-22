@@ -12,10 +12,16 @@ stages:
       - job: TerraformChecks
         displayName: Format, Validate and Scan
         steps:
-          - task: TerraformInstaller@1
+          - script: |
+              set -euo pipefail
+              TF_VERSION="1.15.8"
+              wget -q "https://releases.hashicorp.com/terraform/${TF_VERSION}/terraform_${TF_VERSION}_linux_amd64.zip"
+              sudo apt-get update -qq
+              sudo apt-get install -y -qq unzip
+              unzip -o "terraform_${TF_VERSION}_linux_amd64.zip"
+              sudo install terraform /usr/local/bin/terraform
+              terraform version
             displayName: Install Terraform
-            inputs:
-              terraformVersion: '1.15.8'
 
           - script: terraform fmt -check -recursive
             displayName: Check Terraform formatting
@@ -28,5 +34,5 @@ stages:
           - script: |
               python -m pip install --upgrade pip
               pip install checkov
-              checkov -d . --framework terraform --quiet
+              checkov -d . --framework terraform
             displayName: Scan Terraform with Checkov
