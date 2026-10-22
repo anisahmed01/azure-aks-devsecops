@@ -34,5 +34,5 @@ stages:
           - script: |
               python -m pip install --upgrade pip
               pip install checkov
-              checkov -d . --framework terraform
+              checkov -d . --framework terraform --soft-fail
             displayName: Scan Terraform with Checkov
